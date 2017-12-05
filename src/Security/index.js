@@ -1,22 +1,32 @@
 'use strict'
 require('dotenv').config()
 
-const aes256 = require('nodejs-aes256');
 
 const SECRET_KEY =  process.env.SECRET_KEY
 
+var CryptoJS = require("crypto-js");
 
 
-exports.encrypt = (payload)=> {
-    return aes256.encrypt(SECRET_KEY, JSON.stringify(payload));
+exports.encrypt = (text)=> {
+    // return aes256.encrypt(SECRET_KEY, JSON.stringify(payload));
+
+    // var cipher = crypto.createCipheriv(algorithm, SECRET_KEY, "BCFE7")
+    // var encrypted = cipher.update(text, 'utf8', 'hex')
+
+    // encrypted += cipher.final('hex');
+
+    // return encrypted
 } 
 
 
-exports.decrypt = (key)=>{
+exports.decrypt = (encrypted)=>{
     
-    let response = aes256.decrypt(SECRET_KEY, key);
+    let bytes  = CryptoJS.AES.decrypt(encrypted, SECRET_KEY);
+    let plaintext = bytes.toString(CryptoJS.enc.Utf8);
 
-    return JSON.parse(response)
+    let data = JSON.parse(plaintext)
+
+    return data
 } 
 
 

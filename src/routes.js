@@ -35,10 +35,17 @@ module.exports = function(server) {
 
 	server.get('/MP/customers/:client/cards', auth.isSecure ,Cards.getCards);
 	
+	server.post('/MP/cards/create/token/:userID', auth.isSecure ,Cards.createToken);
+
 	server.post('/MP/cards/create/token', auth.isSecure ,Cards.createToken);
 
+	server.post('/MP/cards/delete/:client/:card', auth.isSecure ,Cards.deleteCards);
 
-	server.post('/MP/payment/create', auth.isSecure ,Payments.makePayment);
+
+	// server.post('/MP/payment/create', auth.isSecure ,Payments.makePayment);
+
+
+	server.post('/MP/pay', auth.isSecure ,Cards.pay);
 
 
 

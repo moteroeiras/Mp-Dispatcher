@@ -31,6 +31,10 @@ app.post('/encrypt', (req, res) =>{
   res.send(master.encrypt(req.body));
 })
 
+app.post('/desencrypt', (req, res) =>{
+  res.send(master.decrypt(req.body.data));
+})
+
 app.listen(PORT, ()=>{
     console.log('====================================');
     console.log("App is running on: ", PORT);
