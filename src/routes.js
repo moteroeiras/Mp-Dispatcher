@@ -33,6 +33,8 @@ module.exports = function(server) {
 	// Cards Methods
 	server.post('/MP/customers/:client/cards/:token',auth.isSecure, Cards.linkCard);
 
+	server.post('/MP/customers/delete/:client',auth.isSecure, Customers.deleteCustomer);
+
 	server.get('/MP/customers/:client/cards', auth.isSecure ,Cards.getCards);
 	
 	server.post('/MP/cards/create/token/:userID', auth.isSecure ,Cards.createToken);

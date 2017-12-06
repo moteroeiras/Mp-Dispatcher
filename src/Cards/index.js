@@ -79,15 +79,21 @@ exports.pay = function(req, res) {
             transaction_amount = transaction_amount + item.finalPrice
         })
 
+        let { customer_id, customer_email, payment_method } = order.paymentMethod.data;
+
         let trans = {
             transaction_amount,
             token : response.id,
-            payment_method_id : 'visa',
+            payment_method_id : payment_method,
             payer : {
-                "email": "oteroeiras@gmail.com.foodcloud.io.foodcloud.io",
-                "id" : "288412396-vvEVCHlfjooChr"
+                "email": customer_email,
+                "id" : customer_id
             }
         }
+
+        console.log('============DATA========================');
+        console.log(order);
+        console.log('====================================');
 
         payments.makePayment(trans)
         .then((result) =>{
@@ -140,7 +146,7 @@ exports.createToken = function(req, res) {
                 console.log(error);
                 console.log('====================================');
                 res.send({ code: 500, error })
-            });u
+            });
         }
 
     // res.send({ code: 200, data : data })
