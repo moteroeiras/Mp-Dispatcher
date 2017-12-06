@@ -6,6 +6,7 @@ const master = require('../Security')
 
 const mercadopago = require ('mercadopago');
 
+const MP = new mercadopago(process.env.CLIENT_ID, process.env.CLIENT_SECRET)
 
 exports.makePayment = function(data) {
 
@@ -19,9 +20,6 @@ exports.makePayment = function(data) {
 
     let payload = Object.assign(defaultPayment, data)
 
-    console.log('================PAYLAOD====================');
-    console.log(payload);
-    console.log('====================================');
 
-    return mercadopago.payment.create(payload)
+    return MP.post('/v1/payments', payload)
 };

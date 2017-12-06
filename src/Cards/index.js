@@ -8,11 +8,13 @@ const payments = require('../Payments')
 
 const master = require('../Security');
 
+const MP = new mercadopago(process.env.CLIENT_ID, process.env.CLIENT_SECRET)
+
 exports.linkCard = function(req, res) {
 
     let { token, client } = req.params;
 
-    mercadopago.post (`/v1/customers/${ client }/cards`, { token: token })
+    MP.post (`/v1/customers/${ client }/cards`, { token: token })
 
     .then((data)=>{
         res.send({ code: 200, data })
@@ -30,7 +32,7 @@ exports.getCards = function(req, res) {
 
     let { client } = req.params;
 
-    mercadopago.get (`/v1/customers/${ client }/cards`)
+    MP.get (`/v1/customers/${ client }/cards`)
 
     .then((data)=>{
         res.send({ code: 200, data })
@@ -44,7 +46,7 @@ exports.deleteCards = function(req, res) {
 
     let { client, card } = req.params;
 
-    mercadopago.delete(`/v1/customers/${ client }/cards/${ card }`)
+    MP.delete(`/v1/customers/${ client }/cards/${ card }`)
 
     .then((data)=>{
         res.send({ code: 200, data })
@@ -55,7 +57,7 @@ exports.deleteCards = function(req, res) {
 };
 
 const tokenCard = (payload) =>{
-    return mercadopago.post(`/v1/card_tokens`, payload)
+    return MP.post(`/v1/card_tokens`, payload)
 }
 
 
@@ -132,12 +134,12 @@ exports.createToken = function(req, res) {
 
     let { userID } = req.params;
 
-    mercadopago.post(`/v1/card_tokens`, payload)
+    MP.post(`/v1/card_tokens`, payload)
 
     .then((data)=>{
 
         if(userID) {
-            mercadopago.post (`/v1/customers/${ userID }/cards`, { token: data.response.id })
+            MP.post (`/v1/customers/${ userID }/cards`, { token: data.response.id })
             
             .then((result)=>{
                 res.send({ code: 200, data : result })

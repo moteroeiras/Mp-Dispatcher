@@ -4,12 +4,13 @@ require('dotenv').config()
 
 const mercadopago = require ('mercadopago');
 
+const MP = new mercadopago(process.env.CLIENT_ID, process.env.CLIENT_SECRET)
+
 exports.newCustomer = function(req, res) {
 
     let data = Object.assign(req.body, { email: `${ req.body.email }.foodcloud.io` })
 
-    mercadopago.customers.create(data)
-
+    MP.post('/v1/customers/', data)
     .then((data)=>{
 
         console.log(data)
@@ -27,11 +28,9 @@ exports.newCustomer = function(req, res) {
 
 exports.getCustomer = function(req, res) {
 
-    let { email, create } = req.params;
+    let { email } = req.params;
 
-    mercadopago.get('/v1/customers/search', { 'email': `${ email }.foodcloud.io` })
-
-    // mercadopago.customers.search({ email : `${ email }.foodcloud.io`})
+    MP.get('/v1/customers/search', { email : `${ email }.foodcloud.io` })
     .then((data)=>{
         console.log('===============DATA=====================');
         console.log(data);
@@ -54,7 +53,7 @@ exports.updateCustomer = function(req, res) {
 
     let data = Object.assign(req.body, { email: `${ req.body.email }.foodcloud.io` })
 
-    mercadopago.put(`/v1/customers/${ id }`, data)
+    MP.put(`/v1/customers/${ id }`, data)
 
     .then((data)=>{
         res.send({ code: 200, data })
@@ -68,7 +67,7 @@ exports.deleteCustomer = function(req, res) {
 
     let { client } = req.params;
 
-    mercadopago.delete(`/v1/customers/${ client }`)
+    MP.delete(`/v1/customers/${ client }`)
     .then((data)=>{
         res.send({ code: 200, data })
     },(error)=>{

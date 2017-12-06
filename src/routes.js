@@ -6,12 +6,12 @@ const mercadopago = require ('mercadopago');
 
 const auth = require('./auth');
 
-mercadopago.configure({
-    sandbox: true,
-    access_token : process.env.ACCESS_TOKEN_MP,
-    client_id: process.env.CLIENT_ID,
-    client_secret: process.env.CLIENT_SECRET,
-})
+// mercadopago.configure({
+//     sandbox: true,
+//     access_token : process.env.ACCESS_TOKEN_MP,
+//     client_id: process.env.CLIENT_ID,
+//     client_secret: process.env.CLIENT_SECRET,
+// })
 
 
 
