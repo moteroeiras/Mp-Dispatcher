@@ -19,8 +19,6 @@ exports.isSecure = (req, res, next)=>{
 
         let response = aes256.decrypt(SECRET, token);
 
-        console.log(response)
-
         if(response == 'FoodcloudPayments') {
             next();
         }

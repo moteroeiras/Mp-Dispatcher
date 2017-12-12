@@ -6,9 +6,11 @@ const master = require('../Security')
 
 const mercadopago = require ('mercadopago');
 
-const MP = new mercadopago(process.env.CLIENT_ID, process.env.CLIENT_SECRET)
+const MP = new mercadopago(process.env.ACCESS_TOKEN_MP)
 
 exports.makePayment = function(data) {
+
+    console.log(data);
 
     let defaultPayment = {
         statement_descriptor: 'FoodCloud',

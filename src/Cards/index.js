@@ -8,7 +8,7 @@ const payments = require('../Payments')
 
 const master = require('../Security');
 
-const MP = new mercadopago(process.env.CLIENT_ID, process.env.CLIENT_SECRET)
+const MP = new mercadopago(process.env.ACCESS_TOKEN_MP)
 
 exports.linkCard = function(req, res) {
 
@@ -71,10 +71,12 @@ exports.pay = function(req, res) {
     tokenCard(payload)
     .then((data) => {
         let {response} = data
-        console.log(data)
-        console.log('Token generated sucessful')
 
         let { order } = req.body;
+        console.log("==========ORDER===============");
+        console.log(order);
+        console.log("=========================");
+
         let transaction_amount = 0
 
         order.products.map((item) =>{
@@ -93,13 +95,33 @@ exports.pay = function(req, res) {
             }
         }
 
-        console.log('============DATA========================');
-        console.log(order);
+        res.send({ code: 403, data: 'Rejected' })
+
+        console.log('====================================');
+        console.log("PAYMENT STARTED");
         console.log('====================================');
 
         payments.makePayment(trans)
         .then((result) =>{
+
             let { response } = result
+
+            console.log('================STATUS===================');
+            console.log(response.status);
+            console.log('====================================');
+
+
+            console.log('================DATA===================');
+            console.log(response);
+            console.log('====================================');
+
+
+
+
+            if(response.status === 'rejected'){
+                res.send({ code: 403, data: 'Rejected' })
+            }
+
             let payload = {
                 id: response.id,
                 collector: '',
@@ -112,22 +134,28 @@ exports.pay = function(req, res) {
                 },
                 fee_details:  response.fee_details
             }
+
             res.send({ code: 200, data : payload })
-        }).catch(err =>{
+
+        }, err =>{
             res.send({ code : err.status, data: err.message })
             console.log('==============ERROR======================');
             console.log(err);
             console.log('====================================');
         })
-        
+
+    }, err =>{
+        res.send({ code : err.status, data: err.message })
+        console.log('==============ERROR======================');
+        console.log(err);
+        console.log('====================================');
     })
-    .catch(err => console.log(err))
 }
 
 exports.createToken = function(req, res) {
 
     if(typeof(req.body.data) != 'string'){
-        res.send({ code: 404, error: 'No hashed data' }); 
+        res.send({ code: 404, error: 'No hashed data' });
     }
 
     let payload = master.decrypt(req.body.data)
@@ -138,24 +166,29 @@ exports.createToken = function(req, res) {
 
     .then((data)=>{
 
+
         if(userID) {
             MP.post (`/v1/customers/${ userID }/cards`, { token: data.response.id })
-            
+
             .then((result)=>{
                 res.send({ code: 200, data : result })
-            },(error)=>{
+                console.log('================DATA====================');
+                console.log(result);
                 console.log('====================================');
-                console.log(error);
+            },(err)=>{
+                console.log('==================ERR==================');
+                console.log(err);
                 console.log('====================================');
-                res.send({ code: 500, error })
+                res.send({ code: 500, err })
+                // throw err
             });
         }
 
     // res.send({ code: 200, data : data })
 
-    },(error)=>{
-        console.log(error)
-        res.send({ code: 500, error })
+  },(err)=>{
+        console.log(err)
+        res.send({ code: 500, err })
     });
 
 };
