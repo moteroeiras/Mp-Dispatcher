@@ -68,14 +68,21 @@ exports.pay = function(req, res) {
         security_code : master.decrypt(req.body.card[card_id])
     }
 
+    console.log({ code: master.decrypt(req.body.card[card_id]) });
+
     tokenCard(payload)
     .then((data) => {
         let {response} = data
 
         let { order } = req.body;
+        let { commerce } = order.subsidiary
         console.log("==========ORDER===============");
-        console.log(order);
+        console.log(commerce);
         console.log("=========================");
+
+        if (!commerce.mercadopago) {
+          rejected({ code: 404, data: 'mercadopago not found' })
+        }
 
         let transaction_amount = 0
 
@@ -89,6 +96,7 @@ exports.pay = function(req, res) {
             transaction_amount,
             token : response.id,
             payment_method_id : payment_method,
+            receptor : commerce.mercadopago,
             payer : {
                 "email": customer_email,
                 "id" : customer_id

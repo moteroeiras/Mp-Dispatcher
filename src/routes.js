@@ -34,7 +34,7 @@ module.exports = function(server) {
 
 	server.post('/MP/cards/delete/:client/:card', auth.isSecure ,Cards.deleteCards);
 
-	server.get('/MP/get-token/:code' ,Customers.getToken);
+	server.get('/MP/get-token/:commerceID/:code' ,Customers.getToken);
 
 
 	// server.post('/MP/payment/create', auth.isSecure ,Payments.makePayment);

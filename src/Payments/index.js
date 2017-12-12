@@ -10,18 +10,23 @@ const MP = new mercadopago(process.env.ACCESS_TOKEN_MP)
 
 exports.makePayment = function(data) {
 
-    console.log(data);
+    let { receptor } = data
+
+    delete data.receptor
 
     let defaultPayment = {
         statement_descriptor: 'FoodCloud',
         description: 'Compra',
         installments: 1,
         binary_mode: true,
-        // application_fee : .10
+        // application_fee : 0.20
     }
 
     let payload = Object.assign(defaultPayment, data)
 
+    console.log(payload);
 
-    return MP.post('/v1/payments', payload)
+    const MPReceptor = new mercadopago(receptor.access_token)
+
+    return MPReceptor.post('/v1/payments', payload)
 };

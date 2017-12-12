@@ -28,14 +28,14 @@ exports.newCustomer = function(req, res) {
 
 exports.getToken = function(req, res) {
 
-    let { code } = req.params;
+    let { code, commerceID } = req.params;
 
 
     MP.post('/oauth/token', {
       client_secret : process.env.ACCESS_TOKEN_MP,
       grant_type : "authorization_code",
       code,
-      redirect_uri :  "http://localhost:8000/mercado-pago/token"
+      redirect_uri :  `${ process.env.REDIRECT_URI }/${ commerceID }`
     })
     .then((data)=>{
         console.log('===============DATA=====================');
