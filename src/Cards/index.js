@@ -95,8 +95,6 @@ exports.pay = function(req, res) {
             }
         }
 
-        res.send({ code: 403, data: 'Rejected' })
-
         console.log('====================================');
         console.log("PAYMENT STARTED");
         console.log('====================================');
