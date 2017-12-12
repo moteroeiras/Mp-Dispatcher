@@ -19,7 +19,7 @@ exports.makePayment = function(data) {
         description: 'Compra',
         installments: 1,
         binary_mode: true,
-        // application_fee : 0.20
+        application_fee : data.transaction_amount * .3
     }
 
     let payload = Object.assign(defaultPayment, data)

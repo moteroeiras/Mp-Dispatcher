@@ -97,6 +97,7 @@ exports.pay = function(req, res) {
             token : response.id,
             payment_method_id : payment_method,
             receptor : commerce.mercadopago,
+            description: `Compra en ${ commerce.name }`,
             payer : {
                 "email": customer_email,
                 "id" : customer_id
