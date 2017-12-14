@@ -7,6 +7,9 @@ const mercadopago = require ('mercadopago');
 const auth = require('./auth');
 
 const Cards = require('./Cards')
+
+const CardsMehods = require('./Cards/methods')
+
 const Customers = require('./Customers')
 const Payments = require('./Payments')
 
@@ -40,7 +43,7 @@ module.exports = function(server) {
 	// server.post('/MP/payment/create', auth.isSecure ,Payments.makePayment);
 
 
-	server.post('/MP/pay', auth.isSecure ,Cards.pay);
+	server.post('/MP/pay', CardsMehods.pay);
 
 
 

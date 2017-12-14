@@ -8,6 +8,8 @@ const payments = require('../Payments')
 
 const master = require('../Security');
 
+var Q = require('q');
+
 const MP = new mercadopago(process.env.ACCESS_TOKEN_MP)
 
 exports.linkCard = function(req, res) {
@@ -57,105 +59,92 @@ exports.deleteCards = function(req, res) {
 };
 
 const tokenCard = (payload) =>{
-    return MP.post(`/v1/card_tokens`, payload)
+    return Q.Promise((resolve, reject) => {
+        MP.post(`/v1/card_tokens`, payload).then(response => resolve(response), err => reject(err))
+    })
 }
 
 
 exports.pay = function(req, res) {
-    let card_id = Object.keys(req.body.card)[0]
-    let payload = {
-        card_id,
-        security_code : master.decrypt(req.body.card[card_id])
-    }
+    return Q.Promise((resolve, reject) => {
 
-    console.log({ code: master.decrypt(req.body.card[card_id]) });
-
-    tokenCard(payload)
-    .then((data) => {
-        let {response} = data
-
-        let { order } = req.body;
-        let { commerce } = order.subsidiary
-        console.log("==========ORDER===============");
-        console.log(commerce);
-        console.log("=========================");
-
-        if (!commerce.mercadopago) {
-          rejected({ code: 404, data: 'mercadopago not found' })
+        let card_id = Object.keys(req.body.card)[0]
+        let payload = {
+            card_id,
+            security_code : master.decrypt(req.body.card[card_id])
         }
 
-        let transaction_amount = 0
+        // console.log({ code: master.decrypt(req.body.card[card_id]) });
 
-        order.products.map((item) =>{
-            transaction_amount = transaction_amount + item.finalPrice
+        tokenCard(payload)
+        .then((data) => {
+            let {response} = data
+
+            let { order } = req.body;
+            let { commerce } = order.subsidiary
+
+
+            if (!commerce.mercadopago) reject({ code: 404, data: 'mercadopago not found' })
+
+            let transaction_amount = 0
+
+            order.products.map((item) =>{
+                transaction_amount = transaction_amount + item.finalPrice
+            })
+
+            let { customer_id, customer_email, payment_method } = order.paymentMethod.data;
+
+            let receptor = commerce.mercadopago
+
+            let trans = {
+                transaction_amount,
+                token : response.id,
+                payment_method_id : payment_method,
+                description: `Compra en ${ commerce.name }`,
+                receptor,
+                payer : {
+                    "email": customer_email,
+                    "id" : customer_id
+                }
+            }
+
+            console.log('====================================');
+            console.log("PAYMENT STARTED");
+            console.log('====================================');
+
+
+            payments.makePayment(trans)
+
+            .then((result) =>{
+
+                let { response } = result
+
+                console.log('================DATA===================');
+                console.log(response);
+                console.log('====================================');
+
+                if(response.status == 'rejected'){
+                    return reject({ code: 403, data: `La tarjeta terminada en ${ response.card.last_four_digits } ha sido rechazada` })
+                }
+                
+                let payloadResult = {
+                    id: response.id,
+                    user_id : customer_id,
+                    card : {
+                        payment_method : response.payment_method_id,
+                        payment_type : response.payment_type_id,
+                        id: response.card.id,
+                        last_four_digits : response.card.last_four_digits
+                    },
+                    fee_details:  response.fee_details
+                }
+        
+                resolve(payloadResult)
+
+            })
+            .catch(err => reject({ code : err.status, data : `${ err.name } - ${ err.message }` }))
         })
-
-        let { customer_id, customer_email, payment_method } = order.paymentMethod.data;
-
-        let trans = {
-            transaction_amount,
-            token : response.id,
-            payment_method_id : payment_method,
-            receptor : commerce.mercadopago,
-            description: `Compra en ${ commerce.name }`,
-            payer : {
-                "email": customer_email,
-                "id" : customer_id
-            }
-        }
-
-        console.log('====================================');
-        console.log("PAYMENT STARTED");
-        console.log('====================================');
-
-        payments.makePayment(trans)
-        .then((result) =>{
-
-            let { response } = result
-
-            console.log('================STATUS===================');
-            console.log(response.status);
-            console.log('====================================');
-
-
-            console.log('================DATA===================');
-            console.log(response);
-            console.log('====================================');
-
-
-
-
-            if(response.status === 'rejected'){
-                res.send({ code: 403, data: 'Rejected' })
-            }
-
-            let payload = {
-                id: response.id,
-                collector: '',
-                user_id : response.payer.id,
-                card : {
-                    payment_method : response.payment_method_id,
-                    payment_type : response.payment_type_id,
-                    id: response.card.id,
-                    last_four_digits : response.card.last_four_digits
-                },
-                fee_details:  response.fee_details
-            }
-
-            res.send({ code: 200, data : payload })
-
-        }, err =>{
-            res.send({ code : err.status, data: err.message })
-            console.log('==============ERROR======================');
-            console.log(err);
-            console.log('====================================');
-        })
-
-    }, err =>{
-        res.send({ code : err.status, data: err.message })
-        console.log('==============ERROR======================');
-        console.log(err);
-        console.log('====================================');
+        .catch(err => reject(err))
     })
 }
 
