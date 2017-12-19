@@ -124,9 +124,7 @@ exports.pay = function(req, res) {
                 console.log('====================================');
 
                 if(response.status == 'rejected'){
-                    let text = `La tarjeta terminada en ${ response.card.last_four_digits } ha sido rechazada\n
-                    ${ response.status_detail === 'cc_rejected_call_for_authorize' ? 'Llamar al emisor para autorizar la compra' : '' }
-                    ${ response.status_detail === 'cc_rejected_bad_filled_security_code' ? 'Código de seguridad incorrecto' : '' }`
+                    let text = `La tarjeta terminada en ${ response.card.last_four_digits } ha sido rechazada\n${ response.status_detail === 'cc_rejected_call_for_authorize' ? 'Llamar al emisor para autorizar la compra' : '' }${ response.status_detail === 'cc_rejected_bad_filled_security_code' ? 'Código de seguridad incorrecto' : '' }`
                     return reject({ code: 403, data: text })
                 }
                 
