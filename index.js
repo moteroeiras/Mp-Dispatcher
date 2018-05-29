@@ -41,10 +41,4 @@ app.listen(PORT, ()=>{
     console.log('====================================');
 })
 
-
-// Expose app
 exports = module.exports = app;
-
-
-// rca
-// diffie-helman

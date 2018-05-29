@@ -43,7 +43,7 @@ exports.makePayment = function(data) {
 
         if(!freeTax[receptor.user_id]){
             console.log('====================================');
-            console.log("Pay with no Fee");
+            console.log("Pay with Fee");
             console.log('====================================');
             defaultPayment = Object.assign({}, defaultPayment, {
                 "application_fee" : Number((data.transaction_amount * .07).toFixed(2))
